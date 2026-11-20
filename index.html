@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GraphSentinel | Transaction Intelligence</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://unpkg.com/cytoscape@3.29.2/dist/cytoscape.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">FINANCIAL NETWORK MONITORING</p>
+      <h1>GraphSentinel</h1>
+      <p class="subtitle">Transaction graph intelligence and suspicious-pattern investigation</p>
+    </div>
+    <span class="status"><i></i> Demo environment</span>
+  </header>
+
+  <main class="container">
+    <section class="notice">
+      <strong>Research prototype:</strong> Scores and alerts are heuristic indicators for review, not proof of fraud.
+      The included data is synthetic.
+    </section>
+
+    <section class="metrics">
+      <article class="metric"><span>Transactions</span><strong>{{ summary.transactions }}</strong></article>
+      <article class="metric"><span>Accounts</span><strong>{{ summary.accounts }}</strong></article>
+      <article class="metric"><span>Connections</span><strong>{{ summary.connections }}</strong></article>
+      <article class="metric"><span>Pattern alerts</span><strong>{{ summary.alerts }}</strong></article>
+      <article class="metric"><span>High-risk accounts</span><strong>{{ summary.high_risk }}</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div><p class="eyebrow">NETWORK EXPLORER</p><h2>Account relationships</h2></div>
+        <p class="hint">Select a node to inspect its account ID and heuristic score.</p>
+      </div>
+      <div id="network"></div>
+      <div class="legend">
+        <span><i class="dot low"></i> Low</span>
+        <span><i class="dot medium"></i> Medium</span>
+        <span><i class="dot high"></i> High</span>
+      </div>
+      <p id="node-info" class="node-info">Select an account node to view details.</p>
+    </section>
+
+    <section class="two-column">
+      <div class="panel">
+        <div class="panel-heading"><div><p class="eyebrow">INVESTIGATION QUEUE</p><h2>Pattern alerts</h2></div></div>
+        {% if alerts %}
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Alert</th><th>Pattern</th><th>Severity</th><th>Accounts</th></tr></thead>
+            <tbody>
+              {% for alert in alerts %}
+              <tr>
+                <td>{{ alert.alert_id }}</td>
+                <td><strong>{{ alert.pattern }}</strong><small>{{ alert.explanation }}</small></td>
+                <td><span class="pill {{ alert.severity|lower }}">{{ alert.severity }}</span></td>
+                <td>{{ alert.accounts|join(', ') }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}<p class="empty">No patterns detected in the current dataset.</p>{% endif %}
+      </div>
+
+      <div class="panel">
+        <div class="panel-heading"><div><p class="eyebrow">ACCOUNT PRIORITISATION</p><h2>Risk scores</h2></div></div>
+        <div class="score-list">
+          {% for item in scores %}
+          <div class="score-row">
+            <div><strong>{{ item.account_id }}</strong><small>{{ item.signals|join(' · ') if item.signals else 'No detected signals' }}</small></div>
+            <div class="score-value"><b>{{ item.risk_score }}</b><span class="pill {{ item.risk_level|lower }}">{{ item.risk_level }}</span></div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    <footer>GraphSentinel · Synthetic demonstration data · Built for educational and investigative exploration</footer>
+  </main>
+  <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+</body>
+</html>
